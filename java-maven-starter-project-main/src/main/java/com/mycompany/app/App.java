@@ -17,11 +17,16 @@
 package com.mycompany.app;
 
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
-import com.esri.arcgisruntime.mapping.BasemapStyle;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
+import com.esri.arcgisruntime.mapping.BasemapStyle;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -38,7 +43,7 @@ public class App extends Application {
     public void start(Stage stage) {
 
         // set the title and size of the stage and show it
-        stage.setTitle("My Map App");
+        stage.setTitle("Frindr");
         stage.setWidth(800);
         stage.setHeight(700);
         stage.show();
@@ -64,6 +69,45 @@ public class App extends Application {
 
         // display the map by setting the map on the map view
         mapView.setMap(map);
+
+        // ------------------------------------------------------------------
+        // UI OVERLAY WITH TOP-RIGHT BUTTONS
+        // ------------------------------------------------------------------
+
+        // Transparent overlay on top of the map; only children capture mouse events
+        AnchorPane uiOverlay = new AnchorPane();
+        uiOverlay.setPickOnBounds(false); // do not block map interaction where there are no controls
+
+        // Top-right button bar
+        HBox topButtonBar = new HBox(10);
+        topButtonBar.setAlignment(Pos.CENTER_RIGHT);
+        topButtonBar.setPadding(new Insets(8));
+        topButtonBar.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.85); " +
+                        "-fx-background-radius: 4; " +
+                        "-fx-padding: 4 8 4 8;"
+        );
+
+        // Buttons
+        Button filtersButton = new Button("Filters");
+        Button settingsButton = new Button("Settings");
+        topButtonBar.getChildren().addAll(filtersButton, settingsButton);
+
+        // Anchor the bar to the top-right corner
+        AnchorPane.setTopAnchor(topButtonBar, 10.0);
+        AnchorPane.setRightAnchor(topButtonBar, 10.0);
+
+        uiOverlay.getChildren().add(topButtonBar);
+
+        // Add overlay above the map
+        stackPane.getChildren().add(uiOverlay);
+
+        // Hook the overlay and button bar to MainController
+        MainController controller = new MainController(uiOverlay, topButtonBar);
+
+        // Wire button actions
+        filtersButton.setOnAction(e -> controller.showFiltersMenu());
+        settingsButton.setOnAction(e -> controller.showSettingsMenu());
     }
 
     /**
