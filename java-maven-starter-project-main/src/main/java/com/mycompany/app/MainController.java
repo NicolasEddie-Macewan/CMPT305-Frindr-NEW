@@ -1,9 +1,11 @@
 package com.mycompany.app;
 
+import com.mycompany.app.backend.fruit.Complete_tree;
 import com.mycompany.app.ui.MenuBuilder;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -16,6 +18,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.io.IOException;
+
 public class MainController {
 
     private final AnchorPane rootPane;
@@ -23,12 +27,14 @@ public class MainController {
     private final MenuBuilder menuBuilder = new MenuBuilder();
     private VBox filtersMenu;
     private VBox settingsMenu;
+    private final Complete_tree trees = new Complete_tree();
+    private Complete_tree filteredTrees;
 
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
     private Pane overlay;
 
-    public MainController(AnchorPane rootPane, HBox topButtonBar) {
+    public MainController(AnchorPane rootPane, HBox topButtonBar) throws IOException {
         this.rootPane = rootPane;
         this.topButtonBar = topButtonBar;
         initialize();
@@ -41,12 +47,21 @@ public class MainController {
 
     private VBox createFiltersMenu() {
         TitledPane fruitFilters = menuBuilder.createFruitFilters();
+        fruitFilters.setId("fruitFilters");
         TitledPane neighbourhoodFilters = menuBuilder.createNeighbourhoodFilters();
+        neighbourhoodFilters.setId("neighbourhoodFilters");
         CheckBox likelyBearsFruit = new CheckBox("Likely Bearing Fruit");
+        likelyBearsFruit.setId("likelyBearsFruit");
+        Button clearFilters = new Button("Clear Filters");
+        clearFilters.setOnAction(e -> clearFilters());
+        Button applyFilters = new Button("Apply Filters");
+        applyFilters.setOnAction(e -> applyFilters());
         return createMenu("Filters",
                 fruitFilters,
                 neighbourhoodFilters,
-                likelyBearsFruit
+                likelyBearsFruit,
+                clearFilters,
+                applyFilters
         );
     }
 
@@ -66,10 +81,7 @@ public class MainController {
         showMenu(settingsMenu);
     }
 
-
-    // ----------------------------------------------------------
-    // CREATE A MENU VBOX (Generic)
-    // ----------------------------------------------------------
+    // Creates a generic VBox menu
     private VBox createMenu(String title, Node... items) {
         VBox menu = new VBox(10);
         menu.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 10; -fx-border-radius: 4;");
@@ -91,10 +103,7 @@ public class MainController {
         return menu;
     }
 
-
-    // ----------------------------------------------------------
-    // SHOW MENU WITH SLIDE + FADE IN
-    // ----------------------------------------------------------
+    // Shows menu with animations
     private void showMenu(VBox newMenu) {
 
         // If a menu is already active, close it first
@@ -141,11 +150,8 @@ public class MainController {
         new ParallelTransition(slide, fade).play();
     }
 
-
-    // ----------------------------------------------------------
-    // HIDE THE CURRENT MENU (Slide and Fade OUT)
+    // Hide the current menu (animated)
     // Optionally run a callback after closing (used to switch menus)
-    // ----------------------------------------------------------
     private void hideActiveMenu(Runnable afterClose) {
         if (activeMenu == null) {
             if (afterClose != null) afterClose.run();
@@ -176,5 +182,28 @@ public class MainController {
         });
 
         anim.play();
+    }
+
+    private void uncheckBoxes(VBox menu) {
+        ObservableList<Node> children = menu.getChildren();
+        for (Node child : children) {
+            if (child instanceof CheckBox) {
+                ((CheckBox) child).setSelected(false);
+            }
+        }
+    }
+
+    private void clearFilters() {
+        TitledPane fruitFilters = (TitledPane) filtersMenu.lookup("#fruitFilters");
+        uncheckBoxes((VBox) fruitFilters.getContent());
+        TitledPane neighbourhoodFilters = (TitledPane) filtersMenu.lookup("#neighbourhoodFilters");
+        uncheckBoxes((VBox) neighbourhoodFilters.getContent());
+        CheckBox likelyBearsFruit = (CheckBox) filtersMenu.lookup("#likelyBearsFruit");
+        likelyBearsFruit.setSelected(false);
+        applyFilters();
+    }
+
+    private void applyFilters(){
+        return;
     }
 }

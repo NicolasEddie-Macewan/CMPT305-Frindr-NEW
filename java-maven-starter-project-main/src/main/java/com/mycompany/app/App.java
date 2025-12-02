@@ -30,6 +30,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class App extends Application {
 
     private MapView mapView;
@@ -40,7 +42,7 @@ public class App extends Application {
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
 
         // set the title and size of the stage and show it
         stage.setTitle("Frindr");
