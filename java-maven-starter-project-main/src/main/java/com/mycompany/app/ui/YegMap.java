@@ -47,15 +47,13 @@ public class YegMap {
 
     /**
      * Returns the root node containing the map view.
-     * Add this to your scene graph (e.g., BorderPane.setCenter(yegMap.getRoot())).
      */
     public StackPane getRoot() {
         return root;
     }
 
     /**
-     * Add a single tree pin at the given latitude/longitude.
-     * Call this in a loop once you have your list of tree coordinates.
+     * Adds a single tree pin at the given latitude/longitude.
      */
     public void addTreePin(double latitude, double longitude) {
         // ArcGIS Point uses (x = longitude, y = latitude)
