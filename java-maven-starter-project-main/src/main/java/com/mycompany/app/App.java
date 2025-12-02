@@ -20,6 +20,7 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.BasemapStyle;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.mapping.Viewpoint;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -69,6 +70,17 @@ public class App extends Application {
 
         // display the map by setting the map on the map view
         mapView.setMap(map);
+
+        // added new - dk
+        // ---------------------------------------------------------------
+        // CENTER MAP ON EDMONTON
+        // ---------------------------------------------------------------
+        Viewpoint edmontonViewpoint = new Viewpoint(
+                53.5461,     // latitude
+                -113.4938,   // longitude
+                100000       // scale (zoom level)
+        );
+        mapView.setViewpoint(edmontonViewpoint);
 
         // ------------------------------------------------------------------
         // UI OVERLAY WITH TOP-RIGHT BUTTONS
