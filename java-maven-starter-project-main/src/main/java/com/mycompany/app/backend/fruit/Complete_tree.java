@@ -242,5 +242,13 @@ public class Complete_tree {
         Date checkDate =  new Date(currentDate.getYear()-5 +"/"+currentDate.getMonthValue()+"/"+ currentDate.getDayOfMonth());
         return  dateFilter(checkDate,mode.lessThan);
     }
+
+    public List<String> getAllNeighbourhoodNames() {
+        return trees.stream()
+                .map(t -> t.getCitylocation().getNeighbourhood())
+                .distinct()
+                .filter(n -> !n.isEmpty())
+                .toList();
+    }
 }
 

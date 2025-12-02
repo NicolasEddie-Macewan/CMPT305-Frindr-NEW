@@ -7,10 +7,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -48,8 +45,8 @@ public class MainController {
     private VBox createFiltersMenu() {
         TitledPane fruitFilters = menuBuilder.createFruitFilters();
         fruitFilters.setId("fruitFilters");
-        TitledPane neighbourhoodFilters = menuBuilder.createNeighbourhoodFilters();
-        neighbourhoodFilters.setId("neighbourhoodFilters");
+        ComboBox<String> neighbourhoodSearch = menuBuilder.createNeighbourhoodSearch(trees);
+        neighbourhoodSearch.setId("neighbourhoodSearch");
         CheckBox likelyBearsFruit = new CheckBox("Likely Bearing Fruit");
         likelyBearsFruit.setId("likelyBearsFruit");
         Button clearFilters = new Button("Clear Filters");
@@ -58,7 +55,7 @@ public class MainController {
         applyFilters.setOnAction(e -> applyFilters());
         return createMenu("Filters",
                 fruitFilters,
-                neighbourhoodFilters,
+                neighbourhoodSearch,
                 likelyBearsFruit,
                 clearFilters,
                 applyFilters
@@ -196,8 +193,9 @@ public class MainController {
     private void clearFilters() {
         TitledPane fruitFilters = (TitledPane) filtersMenu.lookup("#fruitFilters");
         uncheckBoxes((VBox) fruitFilters.getContent());
-        TitledPane neighbourhoodFilters = (TitledPane) filtersMenu.lookup("#neighbourhoodFilters");
-        uncheckBoxes((VBox) neighbourhoodFilters.getContent());
+        ComboBox<String> neighbourhoodSearch = (ComboBox<String>) filtersMenu.lookup("#neighbourhoodSearch");
+        neighbourhoodSearch.getSelectionModel().clearSelection();
+        neighbourhoodSearch.setValue(null);
         CheckBox likelyBearsFruit = (CheckBox) filtersMenu.lookup("#likelyBearsFruit");
         likelyBearsFruit.setSelected(false);
         applyFilters();
