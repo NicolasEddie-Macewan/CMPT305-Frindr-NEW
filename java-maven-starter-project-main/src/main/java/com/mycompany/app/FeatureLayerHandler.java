@@ -1,24 +1,26 @@
 package com.mycompany.app;
 
 import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.data.FeatureCollection;
 import com.esri.arcgisruntime.data.FeatureCollectionTable;
 import com.esri.arcgisruntime.data.Field;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
-import com.esri.arcgisruntime.layers.FeatureLayer;
+import com.esri.arcgisruntime.layers.FeatureCollectionLayer;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
+import com.esri.arcgisruntime.symbology.SimpleRenderer;
 import com.mycompany.app.backend.fruit.AboutTree;
 import com.mycompany.app.backend.fruit.CityLocation;
 import com.mycompany.app.backend.fruit.Complete_tree;
 import com.mycompany.app.backend.fruit.Tree;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import javafx.scene.paint.Color;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class FeatureLayerHandler {
-    FeatureLayer featureLayer;
+    FeatureCollectionLayer featureLayer;
 
     public FeatureLayerHandler(Complete_tree data) {
         FeatureCollectionTable table = new FeatureCollectionTable(
@@ -33,10 +35,21 @@ public class FeatureLayerHandler {
             table.addFeatureAsync(feature);
         }
 
-        featureLayer = new FeatureLayer(table);
+        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(
+                SimpleMarkerSymbol.Style.CIRCLE,
+                Color.rgb(100, 255, 100),
+                6
+        );
+
+        SimpleRenderer renderer = new SimpleRenderer(symbol);
+        table.setRenderer(renderer);
+
+        FeatureCollection featureCollection = new FeatureCollection();
+        featureCollection.getTables().add(table);
+        featureLayer = new FeatureCollectionLayer(featureCollection);
     }
 
-    public FeatureLayer getFeatureLayer() {
+    public FeatureCollectionLayer getFeatureLayer() {
         return featureLayer;
     }
 
@@ -55,7 +68,7 @@ public class FeatureLayerHandler {
         attrs.put("speciesBotanical", aboutTree.getSpeciesBiological());
         attrs.put("speciesCommon", aboutTree.getSpeciesCommon());
         attrs.put("fruit", aboutTree.getFruitType());
-        attrs.put("datePlanted", aboutTree.getPlanted());
+        attrs.put("datePlanted", aboutTree.getPlanted().toString());
         return attrs;
     }
 

@@ -108,7 +108,7 @@ public class App extends Application {
         stackPane.getChildren().add(uiOverlay);
 
         // Hook the overlay and button bar to MainController
-        MainController controller = new MainController(uiOverlay, topButtonBar);
+        MainController controller = new MainController(uiOverlay, topButtonBar, map);
 
         // Wire button actions
         filtersButton.setOnAction(e -> controller.showFiltersMenu());
