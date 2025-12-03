@@ -1,6 +1,7 @@
 package com.mycompany.app;
 
 import com.mycompany.app.backend.fruit.Complete_tree;
+import com.mycompany.app.backend.fruit.Date;
 import com.mycompany.app.ui.MenuBuilder;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -14,8 +15,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainController {
 
@@ -25,7 +29,7 @@ public class MainController {
     private VBox filtersMenu;
     private VBox settingsMenu;
     private final Complete_tree trees = new Complete_tree();
-    private Complete_tree filteredTrees;
+    private Complete_tree filteredTrees = trees;
 
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
@@ -45,8 +49,16 @@ public class MainController {
     private VBox createFiltersMenu() {
         TitledPane fruitFilters = menuBuilder.createFruitFilters();
         fruitFilters.setId("fruitFilters");
+
+
+
         ComboBox<String> neighbourhoodSearch = menuBuilder.createNeighbourhoodSearch(trees);
         neighbourhoodSearch.setId("neighbourhoodSearch");
+        TextField dateInput = new TextField();
+        dateInput.setId("Date");
+        dateInput.setPromptText("YYYY-MM-DD");
+        HBox dateHBox = menuBuilder.comparisonFilters();
+        dateHBox.setId("dateHBox");
         CheckBox likelyBearsFruit = new CheckBox("Likely Bearing Fruit");
         likelyBearsFruit.setId("likelyBearsFruit");
         Button clearFilters = new Button("Clear Filters");
@@ -56,6 +68,8 @@ public class MainController {
         return createMenu("Filters",
                 fruitFilters,
                 neighbourhoodSearch,
+                dateInput,
+                dateHBox,
                 likelyBearsFruit,
                 clearFilters,
                 applyFilters
@@ -190,6 +204,15 @@ public class MainController {
         }
     }
 
+    private void uncheckButtons(HBox menu) {
+        ObservableList<Node> children = menu.getChildren();
+        for (Node child : children) {
+            if (child instanceof RadioButton) {
+                ((RadioButton) child).setSelected(false);
+            }
+        }
+    }
+
     private void clearFilters() {
         TitledPane fruitFilters = (TitledPane) filtersMenu.lookup("#fruitFilters");
         uncheckBoxes((VBox) fruitFilters.getContent());
@@ -198,10 +221,78 @@ public class MainController {
         neighbourhoodSearch.setValue(null);
         CheckBox likelyBearsFruit = (CheckBox) filtersMenu.lookup("#likelyBearsFruit");
         likelyBearsFruit.setSelected(false);
+        TextField date = (TextField) filtersMenu.lookup("#Date");
+        date.setText("");
+        HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
+        uncheckButtons(datebox);
         applyFilters();
     }
 
     private void applyFilters(){
-        return;
+        filteredTrees = trees;
+        //System.out.println(trees.getFruitNamesStreams());
+        TitledPane fruitFilters = (TitledPane) filtersMenu.lookup("#fruitFilters");
+        ComboBox<String> neighbourhoodSearch = (ComboBox<String>) filtersMenu.lookup("#neighbourhoodSearch");
+        CheckBox likelyBearsFruit = (CheckBox) filtersMenu.lookup("#likelyBearsFruit");
+        TextField date = (TextField) filtersMenu.lookup("#Date");
+        HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
+
+
+        if(likelyBearsFruit.isSelected()){
+            filteredTrees = filteredTrees.canBearFruit();
+        }
+        List<String> fruits = getCheckBoxes((VBox) fruitFilters.getContent());
+        if (!fruits.isEmpty()) {
+            filteredTrees = filteredTrees.getFruitListStream(fruits);
+        }
+        if(neighbourhoodSearch.getValue() != null){
+            filteredTrees = filteredTrees.getNeighbourhood(neighbourhoodSearch.getValue());
+        }
+
+        try{
+            if(!date.getText().isEmpty()){
+                System.out.println(checkBox(datebox));
+                switch(checkBox(datebox))
+                {
+                    case -1:break;
+                    case 0: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.lessThan);break;
+                    case 1: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.equals);break;
+                    case 2: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.greaterThan);break;
+                }
+            }
+        }
+        catch (Exception e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error in applying Filters");
+            alert.setHeaderText("Invalid Date");
+            alert.setContentText("Use Date format YYYY-MM-DD instead of " +  date.getText());
+            alert.showAndWait();
+        }
+        System.out.println("fruits count: " + filteredTrees.getCount());
+    }
+
+    private List<String> getCheckBoxes(VBox menu) {
+        ObservableList<Node> children = menu.getChildren();
+        List<String> checkboxes = new ArrayList<>();
+        for  (Node child : children) {
+            if (child instanceof CheckBox) {
+                if (((CheckBox) child).isSelected()) {
+                    checkboxes.add(((CheckBox) child).getText());
+                }
+            }
+        }
+        return checkboxes;
+    }
+    private int checkBox(HBox menu) {
+        int index = 0;
+        for (Node child : menu.getChildren()) {
+            if (child instanceof RadioButton) {
+                if (((RadioButton) child).isSelected()) {
+                    return index;
+                }
+            }
+            index++;
+        }
+        return -1;
     }
 }
