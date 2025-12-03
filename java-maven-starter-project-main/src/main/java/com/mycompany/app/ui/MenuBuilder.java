@@ -4,9 +4,8 @@ import com.mycompany.app.backend.fruit.Complete_tree;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -14,20 +13,20 @@ import java.util.List;
 public class MenuBuilder {
     public TitledPane createFruitFilters() {
         List<String> fruit = List.of(
-                "Crabapple",
                 "Acorn",
-                "Chokecherry",
+                "Crabapple",
+                "RussianOlive",
                 "Cherry",
+                "Chokecherry",
                 "Hawthorn",
-                "Russian Olive",
-                "Plum",
-                "Pear",
                 "Apple",
-                "Caragana Flower/Pod",
-                "Juniper",
+                "Pear",
+                "Plum",
                 "Hackberry",
-                "Coffeetree Pod",
+                "Coffeetreepod",
+                "Caraganaflower/pod",
                 "Butternut",
+                "Juniper",
                 "Saskatoon",
                 "Walnut");
 
@@ -41,6 +40,7 @@ public class MenuBuilder {
         fruitFilters.setExpanded(false);
         return fruitFilters;
     }
+
 
     public ComboBox<String> createNeighbourhoodSearch(Complete_tree data) {
         List<String> neighbourhoodList = data.getAllNeighbourhoodNames();
@@ -96,4 +96,18 @@ public class MenuBuilder {
 
         return comboBox;
     }
+
+    public HBox comparisonFilters(){
+        ToggleGroup group = new ToggleGroup();
+        RadioButton button1 = new RadioButton("<\t");
+        button1.setToggleGroup(group);
+        RadioButton button2 = new RadioButton("=\t");
+        button2.setToggleGroup(group);
+        RadioButton button3 = new RadioButton(">\t");
+        button3.setToggleGroup(group);
+        return new HBox(button1, button2, button3);
+    }
+
+
 }
+
