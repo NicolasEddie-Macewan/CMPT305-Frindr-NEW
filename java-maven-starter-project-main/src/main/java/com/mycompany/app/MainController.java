@@ -274,6 +274,9 @@ public class MainController {
             alert.showAndWait();
         }
         System.out.println("fruits count: " + filteredTrees.getCount());
+
+        FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
+        map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
     }
 
     private List<String> getCheckBoxes(VBox menu) {

@@ -37,7 +37,7 @@ public class FeatureLayerHandler {
 
         SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(
                 SimpleMarkerSymbol.Style.CIRCLE,
-                Color.rgb(100, 255, 100),
+                Color.rgb(75, 175, 75),
                 6
         );
 
