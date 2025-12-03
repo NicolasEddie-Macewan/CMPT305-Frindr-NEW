@@ -230,7 +230,15 @@ public class propertyAssessments {
                 .collect(Collectors.toList()));
     }
 
-    public List<String> getStreetNamesStream(){
+    public List<String> getStreetNamesStream(String hood){
+        return assessmentsList.stream()
+                .filter(p->p.getNeighbourhood().getHood().equals(hood))
+                .map(propertyAssessment -> propertyAssessment.getHouse().getStreetName())
+                .filter(street -> street.compareTo("") != 0)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+    public List<String> getStreetNamesStreamNoFilter(){
         return assessmentsList.stream()
                 .map(propertyAssessment -> propertyAssessment.getHouse().getStreetName())
                 .filter(street -> street.compareTo("") != 0)
@@ -260,6 +268,15 @@ public class propertyAssessments {
     public List<String> getNeighbourhoodNames() {
         return assessmentsList.stream()
                 .map(p -> p.getNeighbourhood().getHood())
+                .distinct()
+                .filter(n -> !n.isEmpty())
+                .toList();
+    }
+
+    public List<String> getHouseNumbersStreet(String street){
+        return assessmentsList.stream()
+                .filter(p->p.getHouse().getStreetName().equals(street))
+                .map(p->p.getHouse().getHouseNum())
                 .distinct()
                 .filter(n -> !n.isEmpty())
                 .toList();

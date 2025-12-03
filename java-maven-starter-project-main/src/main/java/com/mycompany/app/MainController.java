@@ -2,6 +2,8 @@ package com.mycompany.app;
 
 import com.mycompany.app.backend.fruit.Complete_tree;
 import com.mycompany.app.backend.fruit.Date;
+import com.mycompany.app.backend.fruit.location;
+import com.mycompany.app.backend.propAss.propertyAssessments;
 import com.mycompany.app.ui.MenuBuilder;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -14,8 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +32,10 @@ public class MainController {
     private VBox settingsMenu;
     private final Complete_tree trees = new Complete_tree();
     private Complete_tree filteredTrees = trees;
-
+    private boolean locationApplied = false ;
+    private boolean filtersApplied = false;
+    private boolean propLoaded = false;
+    private boolean otherLoaded = false;
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
     private Pane overlay;
@@ -49,11 +54,13 @@ public class MainController {
     private VBox createFiltersMenu() {
         TitledPane fruitFilters = menuBuilder.createFruitFilters();
         fruitFilters.setId("fruitFilters");
-
-
-
-        ComboBox<String> neighbourhoodSearch = menuBuilder.createNeighbourhoodSearch(trees);
+        ComboBox<String> neighbourhoodSearch = menuBuilder.createNeighbourhoodSearch(trees.getAllNeighbourhoodNames());
         neighbourhoodSearch.setId("neighbourhoodSearch");
+
+        Text dateFilterText = new Text();
+        dateFilterText.setText("Date Filter");
+        dateFilterText.setId("dateFilterText");
+
         TextField dateInput = new TextField();
         dateInput.setId("Date");
         dateInput.setPromptText("YYYY-MM-DD");
@@ -68,6 +75,7 @@ public class MainController {
         return createMenu("Filters",
                 fruitFilters,
                 neighbourhoodSearch,
+                dateFilterText,
                 dateInput,
                 dateHBox,
                 likelyBearsFruit,
@@ -77,11 +85,185 @@ public class MainController {
     }
 
     private VBox createSettingsMenu() {
+        Text LL = new Text();
+        LL.setId("LL");
+        LL.setText("Set Coordinates");
+
+        TextField LLInput = new TextField();
+        LLInput.setId("LLInput");
+        LLInput.setPromptText("Latitude, Longitude");
+
+        TextField RadiusInput = new TextField();
+        RadiusInput.setId("RadiusInput");
+        RadiusInput.setPromptText("Radius in KM");
+
+        TextField AddressInput = new TextField();
+        AddressInput.setId("AddressInput");
+        AddressInput.setPromptText("House Number, Street Name");
+        AddressInput.setVisible(false);
+
+        CheckBox useLocation = new CheckBox("Use Address as Anchor");
+        useLocation.setId("useLocation");
+        useLocation.setOnAction(e -> {setProp();});
+
+        Text warningText = new Text();
+        warningText.setText("This feature takes time to load");
+        warningText.setId("warningText");
+
+
+        Text radiusText = new Text();
+        radiusText.setText("Set Radius");
+        radiusText.setId("radiusText");
+
         return createMenu("Settings",
-                new Button("S Test 1"),
-                new Button("S Test 2"),
-                new Button("S Test 3")
+                LL,
+                LLInput,
+                //radiusText,
+                RadiusInput,
+                useLocation,
+                warningText,
+//                LocationFilterText,
+//                neighbourhoodSearch,
+                menuButtons()
+
         );
+    }
+    public HBox menuButtons(){
+        Button clearButton = new Button("Clear");
+        clearButton.setOnAction(e -> clearLocation());
+        Button applyButton = new Button("Apply");
+        applyButton.setOnAction(e -> applyLocation());
+        Button helpButton = new Button("Help");
+        helpButton.setOnAction(e -> helpLocation());
+        HBox buttons = new HBox(clearButton, applyButton, helpButton);
+        buttons.setSpacing(20);
+        return buttons;
+    }
+
+    private void setProp() {
+        if (propLoaded){return;}
+        try {
+            trees.setAssessments(new propertyAssessments("Property_Assessment_Data_2025.csv"));
+            settingsMenu.getChildren().removeLast();
+
+            Text LocationFilterText = new Text();
+            LocationFilterText.setText("Set Address");
+            LocationFilterText.setId("locationFilterText");
+            settingsMenu.getChildren().add(LocationFilterText);
+
+            ComboBox<String> neighbourhoodSearch = menuBuilder.createNeighbourhoodSearch(trees.getAllNeighbourhoodNames());
+            neighbourhoodSearch.setId("neighbourhoodSearch");
+            neighbourhoodSearch.onActionProperty().set(e -> {loadStreets(neighbourhoodSearch.getValue());});
+            settingsMenu.getChildren().add(neighbourhoodSearch);
+            settingsMenu.getChildren().add(menuButtons());
+            propLoaded = true;
+//            Text locationFilter = (Text) settingsMenu.lookup("#locationFilterText");
+//            locationFilter.setVisible(true);
+//            ComboBox<String> neighbourhood = (ComboBox<String>) settingsMenu.lookup("#neighbourhoodSearch");
+//            neighbourhood.setVisible(true);
+        }
+        catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error in loading properties");
+            alert.setHeaderText("Invalid file");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    private void loadStreets(String value) {
+        if (value==null) {return;}
+        settingsMenu.getChildren().removeLast();
+
+        ComboBox<String> test = (ComboBox<String>) settingsMenu.lookup("#streeNames");
+        if(!(test ==null)){settingsMenu.getChildren().removeLast();}
+        ComboBox<String> streetNames = menuBuilder.createNeighbourhoodSearch(trees.getAssessments().getStreetNamesStream(value));
+        streetNames.setPromptText("Street Name");
+        streetNames.onActionProperty().set(e -> {loadOther(streetNames.getValue());});
+        streetNames.setId("streetNames");
+        streetNames.setVisible(true);
+
+        settingsMenu.getChildren().add(streetNames);
+        settingsMenu.getChildren().add(menuButtons());
+    }
+
+    private void loadOther(String value) {
+        if (value==null) {return;}
+        settingsMenu.getChildren().removeLast();
+
+        ComboBox<String> test = (ComboBox<String>) settingsMenu.lookup("#other");
+        if(!(test ==null)){settingsMenu.getChildren().removeLast();}
+        ComboBox<String> other = menuBuilder.createNeighbourhoodSearch(trees.getAssessments().getHouseNumbersStreet(value));
+        other.setPromptText("Search Home Numbers");
+        other.setId("other");
+        other.setVisible(true);
+
+        settingsMenu.getChildren().add(other);
+        settingsMenu.getChildren().add(menuButtons());
+    }
+
+    private void clearLocation() {
+        TextField LL = (TextField) settingsMenu.lookup("#LLInput");
+        LL.setText("");
+        TextField Radius =  (TextField) settingsMenu.lookup("#RadiusInput");
+        Radius.setText("");
+        ComboBox<String> address = (ComboBox<String>) settingsMenu.lookup("#neighbourhoodSearch");
+        address.getSelectionModel().clearSelection();
+        address.setValue(null);
+
+        settingsMenu.getChildren().removeLast(); // removes buttons
+        settingsMenu.getChildren().removeLast(); // removes house number
+        settingsMenu.getChildren().removeLast(); // removes street Name
+
+        settingsMenu.getChildren().add(menuButtons());
+        locationApplied = false;
+        applyFilters();
+    }
+
+    private void applyLocation(){
+        if (!filtersApplied){
+            filteredTrees = trees;
+        }
+
+        TextField LL = (TextField) settingsMenu.lookup("#LLInput");
+        TextField Radius =  (TextField) settingsMenu.lookup("#RadiusInput");
+
+        ComboBox<String> houseNumber = (ComboBox<String>) settingsMenu.lookup("#other");
+        ComboBox<String> street = (ComboBox<String>) settingsMenu.lookup("#streetNames");
+
+
+
+
+        try {
+            if (!LL.getText().isEmpty() && !Radius.getText().isEmpty()) {
+                String[] locArr = LL.getText().split(",");
+                filteredTrees = filteredTrees.InRadius(Double.parseDouble(Radius.getText()), new location(Double.parseDouble(locArr[0]), Double.parseDouble(locArr[1])));
+                locationApplied = true;
+            } else if (!(houseNumber.getValue() == null)   && !(street.getValue() == null) && !Radius.getText().isEmpty()) {
+                filteredTrees = filteredTrees.InRadiusNeighbourhood(Double.parseDouble(Radius.getText()),houseNumber.getValue()+","+street.getValue());
+                locationApplied = true;
+            }
+            else{
+                if(houseNumber.getValue() == null){throw new IllegalArgumentException("invalid house number");}
+                else if(street.getValue() == null){throw new IllegalArgumentException("invalid street Name");}
+                else if (Radius.getText().isEmpty()) {throw new IllegalArgumentException("invalid radius");}
+                else if (LL.getText().isEmpty()) {throw new IllegalArgumentException("invalid Coordinate location");}
+            }
+        }catch (Exception e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error in applying Filters");
+            alert.setHeaderText(e.getMessage());
+            alert.showAndWait();
+        }
+    System.out.println(filteredTrees.getCount());
+    }
+
+    private void helpLocation(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Location Filter Help");
+        alert.setHeaderText("Location Filter Help");
+        alert.setContentText("This feature allows you to set a specified location, either polar coordinates or address, and search for all the trees in a input radius");
+        alert.showAndWait();
     }
 
     public void showFiltersMenu() {
@@ -229,24 +411,27 @@ public class MainController {
     }
 
     private void applyFilters(){
-        filteredTrees = trees;
-        //System.out.println(trees.getFruitNamesStreams());
+        if(!locationApplied) {
+            filteredTrees = trees;
+        }
         TitledPane fruitFilters = (TitledPane) filtersMenu.lookup("#fruitFilters");
         ComboBox<String> neighbourhoodSearch = (ComboBox<String>) filtersMenu.lookup("#neighbourhoodSearch");
         CheckBox likelyBearsFruit = (CheckBox) filtersMenu.lookup("#likelyBearsFruit");
         TextField date = (TextField) filtersMenu.lookup("#Date");
         HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
 
-
         if(likelyBearsFruit.isSelected()){
             filteredTrees = filteredTrees.canBearFruit();
+            filtersApplied = true;
         }
         List<String> fruits = getCheckBoxes((VBox) fruitFilters.getContent());
         if (!fruits.isEmpty()) {
             filteredTrees = filteredTrees.getFruitListStream(fruits);
+            filtersApplied = true;
         }
         if(neighbourhoodSearch.getValue() != null){
             filteredTrees = filteredTrees.getNeighbourhood(neighbourhoodSearch.getValue());
+            filtersApplied = true;
         }
 
         try{
@@ -255,9 +440,9 @@ public class MainController {
                 switch(checkBox(datebox))
                 {
                     case -1:break;
-                    case 0: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.lessThan);break;
-                    case 1: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.equals);break;
-                    case 2: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.greaterThan);break;
+                    case 0: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.lessThan);filtersApplied = true;break;
+                    case 1: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.equals);filtersApplied = true;break;
+                    case 2: filteredTrees = filteredTrees.dateFilter(new Date(date.getText()), Complete_tree.mode.greaterThan);filtersApplied = true;break;
                 }
             }
         }
@@ -270,6 +455,7 @@ public class MainController {
         }
         System.out.println("fruits count: " + filteredTrees.getCount());
     }
+
 
     private List<String> getCheckBoxes(VBox menu) {
         ObservableList<Node> children = menu.getChildren();

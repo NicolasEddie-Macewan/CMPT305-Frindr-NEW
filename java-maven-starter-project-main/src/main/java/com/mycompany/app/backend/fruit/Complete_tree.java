@@ -21,14 +21,18 @@ public class Complete_tree {
     public Complete_tree() throws IOException {
         this.filename = "Trees_edible.csv";
         trees = readDataList(this.filename);
-        assessments = new propertyAssessments("Property_Assessment_Data_2025.csv");
+        //assessments = new propertyAssessments("Property_Assessment_Data_2025.csv");
     }
 
     public Complete_tree(List<Tree> trees){
         this.filename = "";
         this.trees = trees;
     }
-
+    //=================================================================
+    //=================================================================
+    public void setAssessments(propertyAssessments  assessments){
+        this.assessments = assessments;
+    }
     //=================================================================
     //=================================================================
     private static List<Tree> readDataList(String fileName) throws IOException {
@@ -207,7 +211,7 @@ public class Complete_tree {
         uInput = uInput.toUpperCase();
         String[] userInputs = uInput.split(",");
         if (userInputs.length != 2){throw new IllegalArgumentException("Format:House Number,Street Name");}
-        if (!assessments.getStreetNamesStream().contains(userInputs[1])){
+        if (!assessments.getStreetNamesStreamNoFilter().contains(userInputs[1])){
             throw new IllegalArgumentException("Street doesn't exist");
         }
         propertyAssessments street = assessments.checkStreetStream(userInputs[1]);
