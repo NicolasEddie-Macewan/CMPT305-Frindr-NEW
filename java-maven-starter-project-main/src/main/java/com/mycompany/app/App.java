@@ -19,6 +19,7 @@ package com.mycompany.app;
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.BasemapStyle;
+import com.esri.arcgisruntime.mapping.Viewpoint;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -71,6 +72,8 @@ public class App extends Application {
 
         // display the map by setting the map on the map view
         mapView.setMap(map);
+        Viewpoint edmontonViewpoint = new Viewpoint(53.5461, -113.4938, 400000);
+        mapView.setViewpoint(edmontonViewpoint);
 
         // ------------------------------------------------------------------
         // UI OVERLAY WITH TOP-RIGHT BUTTONS
