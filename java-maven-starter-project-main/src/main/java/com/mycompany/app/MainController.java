@@ -157,10 +157,6 @@ public class MainController {
             settingsMenu.getChildren().add(neighbourhoodSearch);
             settingsMenu.getChildren().add(menuButtons());
             propLoaded = true;
-//            Text locationFilter = (Text) settingsMenu.lookup("#locationFilterText");
-//            locationFilter.setVisible(true);
-//            ComboBox<String> neighbourhood = (ComboBox<String>) settingsMenu.lookup("#neighbourhoodSearch");
-//            neighbourhood.setVisible(true);
         }
         catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);

@@ -1,6 +1,5 @@
 package com.mycompany.app.ui;
 
-import com.mycompany.app.backend.fruit.Complete_tree;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
