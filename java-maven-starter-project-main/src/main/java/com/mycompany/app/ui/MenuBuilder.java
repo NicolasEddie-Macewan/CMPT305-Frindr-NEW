@@ -1,6 +1,5 @@
 package com.mycompany.app.ui;
 
-import com.mycompany.app.backend.fruit.Complete_tree;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -42,9 +41,13 @@ public class MenuBuilder {
     }
 
 
-    public ComboBox<String> createNeighbourhoodSearch(Complete_tree data) {
-        List<String> neighbourhoodList = data.getAllNeighbourhoodNames();
-        ObservableList<String> neighbourhoods = javafx.collections.FXCollections.observableArrayList(neighbourhoodList);
+    //public ComboBox<String> createNeighbourhoodSearch(Complete_tree data) {
+    public ComboBox<String> createNeighbourhoodSearch(List<String> dataset) {
+
+        //List<String> neighbourhoodList = data.getAllNeighbourhoodNames();
+        //ObservableList<String> neighbourhoods = javafx.collections.FXCollections.observableArrayList(neighbourhoodList);
+
+        ObservableList<String> neighbourhoods = javafx.collections.FXCollections.observableArrayList(dataset);
         FilteredList<String> filteredNeighbourhoods = new FilteredList<>(neighbourhoods, p -> true);
 
         ComboBox<String> comboBox = new ComboBox<>(filteredNeighbourhoods);
@@ -93,7 +96,6 @@ public class MenuBuilder {
                 ignore[0] = false;
             });
         });
-
         return comboBox;
     }
 
