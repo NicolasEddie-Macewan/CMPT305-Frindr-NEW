@@ -1,6 +1,13 @@
 package com.mycompany.app;
 
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.geometry.Geometry;
+import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
+import com.esri.arcgisruntime.mapping.GeoElement;
+import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult;
+import com.esri.arcgisruntime.mapping.view.MapView;
 import com.mycompany.app.backend.fruit.Complete_tree;
 import com.mycompany.app.backend.fruit.Date;
 import com.mycompany.app.backend.fruit.location;
@@ -10,16 +17,14 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import javafx.geometry.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,22 +36,27 @@ public class MainController {
     private final MenuBuilder menuBuilder = new MenuBuilder();
     private VBox filtersMenu;
     private VBox settingsMenu;
+    private Pane popupPane;
     private final Complete_tree trees = new Complete_tree();
     private Complete_tree filteredTrees = trees;
     private boolean locationApplied = false ;
     private boolean filtersApplied = false;
     private boolean propLoaded = false;
     private boolean otherLoaded = false;
-    private ArcGISMap map;
+    private final ArcGISMap map;
+    private final MapView mapView;
+    private final FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(trees);
+    private FeatureLayerHandler filteredFeatureLayerHandler;
 
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
     private Pane overlay;
 
-    public MainController(AnchorPane rootPane, HBox topButtonBar, ArcGISMap map) throws IOException {
+    public MainController(AnchorPane rootPane, HBox topButtonBar, ArcGISMap map, MapView mapView) throws IOException {
         this.rootPane = rootPane;
         this.topButtonBar = topButtonBar;
         this.map = map;
+        this.mapView = mapView;
         initialize();
     }
 
@@ -55,6 +65,7 @@ public class MainController {
         settingsMenu = createSettingsMenu();
         FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
         map.getOperationalLayers().add(featureLayerHandler.getFeatureLayer());
+        createPopupPane();
     }
 
     private VBox createFiltersMenu() {
@@ -134,6 +145,7 @@ public class MainController {
 
         );
     }
+
     public HBox menuButtons(){
         Button clearButton = new Button("Clear");
         clearButton.setOnAction(e -> clearLocation());
@@ -144,6 +156,49 @@ public class MainController {
         HBox buttons = new HBox(clearButton, applyButton, helpButton);
         buttons.setSpacing(20);
         return buttons;
+    }
+
+    private void createPopupPane() {
+
+        VBox box = new VBox(8);
+        box.setPadding(new Insets(12));
+        box.setStyle("""
+        -fx-background-color: white;
+        -fx-border-color: #666;
+        -fx-border-radius: 6;
+        -fx-background-radius: 6;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 3);
+        """);
+
+        box.setPrefWidth(220);
+
+        Label title = new Label("Tree Details");
+        title.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+
+        Label speciesBotanicalLabel = new Label();
+        speciesBotanicalLabel.setId("speciesBotanicalLabel");
+
+        Label speciesCommonLabel = new Label();
+        speciesCommonLabel.setId("speciesCommonLabel");
+
+        Label fruitLabel = new Label();
+        fruitLabel.setId("fruitLabel");
+
+        Label dateLabel = new Label();
+        dateLabel.setId("dateLabel");
+
+        Button closeButton = new Button("Close");
+        closeButton.setOnAction(e -> popupPane.setVisible(false));
+
+        box.getChildren().addAll(title, speciesBotanicalLabel, speciesCommonLabel, fruitLabel, dateLabel, closeButton);
+
+        popupPane = new StackPane(box);
+        popupPane.setVisible(false);
+
+        // mouse clicks inside the popup should not click map pins
+        popupPane.setPickOnBounds(false);
+
+        rootPane.getChildren().add(popupPane);
     }
 
     private void setProp() {
@@ -409,7 +464,8 @@ public class MainController {
         date.setText("");
         HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
         uncheckButtons(datebox);
-        applyFilters();
+        map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
+        filteredFeatureLayerHandler = null;
     }
 
     private void applyFilters(){
@@ -457,8 +513,8 @@ public class MainController {
         }
         System.out.println("fruits count: " + filteredTrees.getCount());
 
-        FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
-        map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
+        filteredFeatureLayerHandler = new FeatureLayerHandler(filteredTrees);
+        map.getOperationalLayers().set(0, filteredFeatureLayerHandler.getFeatureLayer());
     }
 
 
@@ -485,5 +541,57 @@ public class MainController {
             index++;
         }
         return -1;
+    }
+
+    private void mapViewOnClick(FeatureLayerHandler featureLayerHandler) {
+        mapView.setOnMouseClicked(event -> {
+            Point2D screenPoint = new Point2D(event.getX(), event.getY());
+            ListenableFuture<IdentifyLayerResult> result =
+                    mapView.identifyLayerAsync(featureLayerHandler.getFeatureLayer(), screenPoint, 10, false);
+
+            result.addDoneListener(() -> {
+                try {
+                    IdentifyLayerResult identify = result.get();
+                    List<GeoElement> elements = identify.getElements();
+                    if (!elements.isEmpty()) {
+                        Feature feature = (Feature) elements.getFirst();
+                        showTreeDetailPane(feature, mapView);
+                    }
+                } catch (Exception ex) { ex.printStackTrace(); }
+            });
+        });
+    }
+
+    private void showTreeDetailPane(Feature feature, MapView mapView) {
+        String speciesBotanical = String.valueOf(feature.getAttributes().get("speciesBotanical"));
+        String speciesCommon = String.valueOf(feature.getAttributes().get("speciesCommon"));
+        String fruit = String.valueOf(feature.getAttributes().get("fruit"));
+        String datePlanted = String.valueOf(feature.getAttributes().get("datePlanted"));
+
+        // Update labels
+        Label speciesBotanicalLabel = (Label) popupPane.lookup("#speciesBotanicalLabel");
+        Label speciesCommonLabel = (Label) popupPane.lookup("#speciesCommonLabel");
+        Label fruitLabel = (Label) popupPane.lookup("#fruitLabel");
+        Label dateLabel = (Label) popupPane.lookup("#dateLabel");
+
+        speciesBotanicalLabel.setText("Species: " + speciesBotanical);
+        speciesCommonLabel.setText("Diameter: " + speciesCommon);
+        fruitLabel.setText("ID: " + fruit);
+        dateLabel.setText("Date Planted: " + datePlanted);
+
+        // Compute map → screen coordinates
+        Geometry geom = feature.getGeometry();
+        if (!(geom instanceof Point point)) return;
+
+        Point2D screen = mapView.locationToScreen(point);
+
+        // Offset so the popup appears above/right of the pin
+        double offsetX = 10;
+        double offsetY = -10;
+
+        popupPane.setLayoutX(screen.getX() + offsetX);
+        popupPane.setLayoutY(screen.getY() + offsetY);
+
+        popupPane.setVisible(true);
     }
 }
