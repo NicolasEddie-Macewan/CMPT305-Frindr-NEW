@@ -38,6 +38,8 @@ public class MainController {
     private boolean propLoaded = false;
     private boolean otherLoaded = false;
     private ArcGISMap map;
+    private final FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(trees);
+    private FeatureLayerHandler filteredFeatureLayerHandler;
 
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
@@ -409,7 +411,8 @@ public class MainController {
         date.setText("");
         HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
         uncheckButtons(datebox);
-        applyFilters();
+        map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
+        filteredFeatureLayerHandler = null;
     }
 
     private void applyFilters(){
@@ -457,8 +460,8 @@ public class MainController {
         }
         System.out.println("fruits count: " + filteredTrees.getCount());
 
-        FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
-        map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
+        filteredFeatureLayerHandler = new FeatureLayerHandler(filteredTrees);
+        map.getOperationalLayers().set(0, filteredFeatureLayerHandler.getFeatureLayer());
     }
 
 
