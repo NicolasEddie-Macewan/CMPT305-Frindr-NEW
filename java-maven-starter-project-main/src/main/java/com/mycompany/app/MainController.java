@@ -1,5 +1,6 @@
 package com.mycompany.app;
 
+import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.mycompany.app.backend.fruit.Complete_tree;
 import com.mycompany.app.backend.fruit.Date;
 import com.mycompany.app.backend.fruit.location;
@@ -35,12 +36,11 @@ public class MainController {
     private boolean locationApplied = false ;
     private boolean filtersApplied = false;
     private boolean propLoaded = false;
-    private boolean otherLoaded = false;
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
     private Pane overlay;
 
-    public MainController(AnchorPane rootPane, HBox topButtonBar) throws IOException {
+    public MainController(AnchorPane rootPane, HBox topButtonBar, ArcGISMap map) throws IOException {
         this.rootPane = rootPane;
         this.topButtonBar = topButtonBar;
         initialize();
@@ -64,7 +64,7 @@ public class MainController {
         TextField dateInput = new TextField();
         dateInput.setId("Date");
         dateInput.setPromptText("YYYY-MM-DD");
-        HBox dateHBox = menuBuilder.comparisonFilters();
+        VBox dateHBox = menuBuilder.comparisonFilters();
         dateHBox.setId("dateHBox");
         CheckBox likelyBearsFruit = new CheckBox("Likely Bearing Fruit");
         likelyBearsFruit.setId("likelyBearsFruit");
