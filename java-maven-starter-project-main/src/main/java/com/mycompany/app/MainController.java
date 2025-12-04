@@ -36,6 +36,11 @@ public class MainController {
     private boolean locationApplied = false ;
     private boolean filtersApplied = false;
     private boolean propLoaded = false;
+    private boolean otherLoaded = false;
+    private ArcGISMap map;
+    private final FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(trees);
+    private FeatureLayerHandler filteredFeatureLayerHandler;
+
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
     private Pane overlay;
@@ -43,12 +48,15 @@ public class MainController {
     public MainController(AnchorPane rootPane, HBox topButtonBar, ArcGISMap map) throws IOException {
         this.rootPane = rootPane;
         this.topButtonBar = topButtonBar;
+        this.map = map;
         initialize();
     }
 
     public void initialize() {
         filtersMenu = createFiltersMenu();
         settingsMenu = createSettingsMenu();
+        FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
+        map.getOperationalLayers().add(featureLayerHandler.getFeatureLayer());
     }
 
     private VBox createFiltersMenu() {
@@ -64,7 +72,7 @@ public class MainController {
         TextField dateInput = new TextField();
         dateInput.setId("Date");
         dateInput.setPromptText("YYYY-MM-DD");
-        VBox dateHBox = menuBuilder.comparisonFilters();
+        HBox dateHBox = menuBuilder.comparisonFilters();
         dateHBox.setId("dateHBox");
         CheckBox likelyBearsFruit = new CheckBox("Likely Bearing Fruit");
         likelyBearsFruit.setId("likelyBearsFruit");
@@ -403,7 +411,8 @@ public class MainController {
         date.setText("");
         HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
         uncheckButtons(datebox);
-        applyFilters();
+        map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
+        filteredFeatureLayerHandler = null;
     }
 
     private void applyFilters(){
@@ -450,6 +459,9 @@ public class MainController {
             alert.showAndWait();
         }
         System.out.println("fruits count: " + filteredTrees.getCount());
+
+        filteredFeatureLayerHandler = new FeatureLayerHandler(filteredTrees);
+        map.getOperationalLayers().set(0, filteredFeatureLayerHandler.getFeatureLayer());
     }
 
 
