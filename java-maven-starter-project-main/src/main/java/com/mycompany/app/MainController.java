@@ -1,5 +1,6 @@
 package com.mycompany.app;
 
+import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.mycompany.app.backend.fruit.Complete_tree;
 import com.mycompany.app.backend.fruit.Date;
 import com.mycompany.app.backend.fruit.location;
@@ -36,19 +37,24 @@ public class MainController {
     private boolean filtersApplied = false;
     private boolean propLoaded = false;
     private boolean otherLoaded = false;
+    private ArcGISMap map;
+
     // The currently visible menu (filters or settings)
     private VBox activeMenu;
     private Pane overlay;
 
-    public MainController(AnchorPane rootPane, HBox topButtonBar) throws IOException {
+    public MainController(AnchorPane rootPane, HBox topButtonBar, ArcGISMap map) throws IOException {
         this.rootPane = rootPane;
         this.topButtonBar = topButtonBar;
+        this.map = map;
         initialize();
     }
 
     public void initialize() {
         filtersMenu = createFiltersMenu();
         settingsMenu = createSettingsMenu();
+        FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
+        map.getOperationalLayers().add(featureLayerHandler.getFeatureLayer());
     }
 
     private VBox createFiltersMenu() {
@@ -450,6 +456,9 @@ public class MainController {
             alert.showAndWait();
         }
         System.out.println("fruits count: " + filteredTrees.getCount());
+
+        FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
+        map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
     }
 
 
