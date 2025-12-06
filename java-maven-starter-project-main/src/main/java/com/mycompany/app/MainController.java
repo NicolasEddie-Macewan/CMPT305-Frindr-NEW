@@ -36,7 +36,6 @@ public class MainController {
     private boolean locationApplied = false ;
     private boolean filtersApplied = false;
     private boolean propLoaded = false;
-    private boolean otherLoaded = false;
     private ArcGISMap map;
     private final FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(trees);
     private FeatureLayerHandler filteredFeatureLayerHandler;
@@ -72,7 +71,7 @@ public class MainController {
         TextField dateInput = new TextField();
         dateInput.setId("Date");
         dateInput.setPromptText("YYYY-MM-DD");
-        HBox dateHBox = menuBuilder.comparisonFilters();
+        VBox dateHBox = menuBuilder.comparisonFilters();
         dateHBox.setId("dateHBox");
         CheckBox likelyBearsFruit = new CheckBox("Likely Bearing Fruit");
         likelyBearsFruit.setId("likelyBearsFruit");
@@ -176,7 +175,7 @@ public class MainController {
     }
 
     private void loadStreets(String value) {
-        if (value==null) {return;}
+        if (value==null || value.isEmpty()) {return;}
         settingsMenu.getChildren().removeLast();
 
         ComboBox<String> test = (ComboBox<String>) settingsMenu.lookup("#streeNames");
@@ -192,7 +191,7 @@ public class MainController {
     }
 
     private void loadOther(String value) {
-        if (value==null) {return;}
+        if (value==null || value.isEmpty()) {return;}
         settingsMenu.getChildren().removeLast();
 
         ComboBox<String> test = (ComboBox<String>) settingsMenu.lookup("#other");
@@ -260,6 +259,7 @@ public class MainController {
             alert.showAndWait();
         }
     System.out.println(filteredTrees.getCount());
+        applyFilters();
     }
 
     private void helpLocation(){
@@ -390,7 +390,7 @@ public class MainController {
         }
     }
 
-    private void uncheckButtons(HBox menu) {
+    private void uncheckButtons(VBox menu) {
         ObservableList<Node> children = menu.getChildren();
         for (Node child : children) {
             if (child instanceof RadioButton) {
@@ -409,7 +409,7 @@ public class MainController {
         likelyBearsFruit.setSelected(false);
         TextField date = (TextField) filtersMenu.lookup("#Date");
         date.setText("");
-        HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
+        VBox datebox = (VBox) filtersMenu.lookup("#dateHBox");
         uncheckButtons(datebox);
         map.getOperationalLayers().set(0, featureLayerHandler.getFeatureLayer());
         filteredFeatureLayerHandler = null;
@@ -423,7 +423,7 @@ public class MainController {
         ComboBox<String> neighbourhoodSearch = (ComboBox<String>) filtersMenu.lookup("#neighbourhoodSearch");
         CheckBox likelyBearsFruit = (CheckBox) filtersMenu.lookup("#likelyBearsFruit");
         TextField date = (TextField) filtersMenu.lookup("#Date");
-        HBox datebox = (HBox) filtersMenu.lookup("#dateHBox");
+        VBox datebox = (VBox) filtersMenu.lookup("#dateHBox");
 
         if(likelyBearsFruit.isSelected()){
             filteredTrees = filteredTrees.canBearFruit();
@@ -477,7 +477,7 @@ public class MainController {
         }
         return checkboxes;
     }
-    private int checkBox(HBox menu) {
+    private int checkBox(VBox menu) {
         int index = 0;
         for (Node child : menu.getChildren()) {
             if (child instanceof RadioButton) {
