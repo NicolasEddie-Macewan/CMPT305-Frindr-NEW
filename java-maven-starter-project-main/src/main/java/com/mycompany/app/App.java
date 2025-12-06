@@ -95,8 +95,9 @@ public class App extends Application {
 
         // Buttons
         Button filtersButton = new Button("Filters");
-        Button settingsButton = new Button("Settings");
-        topButtonBar.getChildren().addAll(filtersButton, settingsButton);
+        Button settingsButton = new Button("Location");
+        Button legendButton = new Button("Legend");
+        topButtonBar.getChildren().addAll(legendButton,filtersButton, settingsButton);
 
         // Anchor the bar to the top-right corner
         AnchorPane.setTopAnchor(topButtonBar, 10.0);
@@ -113,6 +114,7 @@ public class App extends Application {
         // Wire button actions
         filtersButton.setOnAction(e -> controller.showFiltersMenu());
         settingsButton.setOnAction(e -> controller.showSettingsMenu());
+        legendButton.setOnAction(e-> controller.showLegendMenu());
     }
 
     /**

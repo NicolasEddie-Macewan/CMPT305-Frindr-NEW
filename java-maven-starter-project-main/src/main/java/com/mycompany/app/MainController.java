@@ -12,14 +12,18 @@ import javafx.animation.TranslateTransition;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +35,7 @@ public class MainController {
     private final MenuBuilder menuBuilder = new MenuBuilder();
     private VBox filtersMenu;
     private VBox settingsMenu;
+    private VBox LegendMenu;
     private final Complete_tree trees = new Complete_tree();
     private Complete_tree filteredTrees = trees;
     private boolean locationApplied = false ;
@@ -54,6 +59,7 @@ public class MainController {
     public void initialize() {
         filtersMenu = createFiltersMenu();
         settingsMenu = createSettingsMenu();
+        LegendMenu = createLegendMenu();
         FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(filteredTrees);
         map.getOperationalLayers().add(featureLayerHandler.getFeatureLayer());
     }
@@ -117,20 +123,16 @@ public class MainController {
         warningText.setText("This feature takes time to load");
         warningText.setId("warningText");
 
-
         Text radiusText = new Text();
         radiusText.setText("Set Radius");
         radiusText.setId("radiusText");
 
-        return createMenu("Settings",
+        return createMenu("Location",
                 LL,
                 LLInput,
-                //radiusText,
                 RadiusInput,
                 useLocation,
                 warningText,
-//                LocationFilterText,
-//                neighbourhoodSearch,
                 menuButtons()
 
         );
@@ -276,6 +278,90 @@ public class MainController {
 
     public void showSettingsMenu() {
         showMenu(settingsMenu);
+    }
+
+    private VBox createLegendMenu(){
+        int height = 20;
+        int width = 20;
+
+        HBox Acorn = new HBox(10);
+        Acorn.getChildren().addAll(new Rectangle(height,width,Color.rgb(255, 255, 0)),createText("Acorn"));
+
+        HBox Crabapple = new HBox(10);
+        Crabapple.getChildren().addAll(new Rectangle(height,width,Color.rgb(255, 155, 155)),createText("Crabapple"));
+
+        HBox RussianOlive = new HBox(10);
+        RussianOlive.getChildren().addAll(new Rectangle(height,width,Color.rgb(75, 150, 0)),createText("Russian Olive"));
+
+        HBox Cherry = new HBox(10);
+        Cherry.getChildren().addAll(new Rectangle(height,width,Color.rgb(255, 0, 0)),createText("Cherry"));
+
+        HBox Chokecherry = new HBox(10);
+        Chokecherry.getChildren().addAll(new Rectangle(height,width,Color.rgb(255, 75, 125)),createText("Choke Cherry"));
+
+        HBox Hawthorn = new HBox(10);
+        Hawthorn.getChildren().addAll(new Rectangle(height,width,Color.rgb(0, 255, 255)),createText("Hawthorn"));
+
+        HBox Apple = new HBox(10);
+        Apple.getChildren().addAll(new Rectangle(height,width,Color.rgb(0, 255, 0)),createText("Apple"));
+
+        HBox Pear = new HBox(10);
+        Pear.getChildren().addAll(new Rectangle(height,width,Color.rgb(255, 0, 255)),createText("Pear"));
+
+        HBox Plum = new HBox(10);
+        Plum.getChildren().addAll(new Rectangle(height,width,Color.rgb(155, 55, 255)),createText("Plum"));
+
+        HBox Hackberry = new HBox(10);
+        Hackberry.getChildren().addAll(new Rectangle(height,width,Color.rgb(150, 0, 0)),createText("Hackberry"));
+
+        HBox Coffeetreepod = new HBox(10);
+        Coffeetreepod.getChildren().addAll(new Rectangle(height,width, Color.rgb(110, 110, 10)),createText("Coffee Tree Pod"));
+
+        HBox Caraganaflower = new HBox(10);
+        Caraganaflower.getChildren().addAll(new Rectangle(height,width,Color.rgb(255, 155, 255)),createText("Caragana flower / Pod"));
+
+        HBox Butternut = new HBox(10);
+        Butternut.getChildren().addAll(new Rectangle(height,width,Color.rgb(25, 75, 255)),createText("Butternut"));
+
+        HBox Juniper = new HBox(10);
+        Juniper.getChildren().addAll(new Rectangle(height,width,Color.rgb(125, 25, 200)), createText("Juniper"));
+
+        HBox Saskatoon = new HBox(10);
+        Saskatoon.getChildren().addAll(new Rectangle(height,width,Color.rgb(75, 10, 110)),createText("Saskatoon"));
+
+        HBox Walnut = new HBox(10);
+        Walnut.getChildren().addAll(new Rectangle(height,width,Color.rgb(110, 55, 0)), createText("Walnut"));
+
+        return createMenu("Legend",
+                Acorn,
+                Crabapple,
+                RussianOlive,
+                Cherry,
+                Chokecherry,
+                Hawthorn,
+                Apple,
+                Pear,
+                Plum,
+                Hackberry,
+                Coffeetreepod,
+                Caraganaflower,
+                Butternut,
+                Juniper,
+                Saskatoon,
+                Walnut
+        );
+
+    }
+
+    public Text createText(String inp){
+       Text text = new Text(inp);
+        text.setFill(Color.BLACK);
+        text.setFont(Font.font("Helvetica", FontWeight.BOLD, 20));
+        return text;
+    }
+
+    public void showLegendMenu(){
+        showMenu(LegendMenu);
     }
 
     // Creates a generic VBox menu
