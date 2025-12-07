@@ -40,11 +40,11 @@ public class FeatureLayerHandler {
         UniqueValueRenderer renderer = new UniqueValueRenderer();
         renderer.getFieldNames().add("fruit");
 
-        SimpleMarkerSymbol defaultSymbol = new SimpleMarkerSymbol(
-                SimpleMarkerSymbol.Style.CIRCLE,
-                Color.rgb(75, 175, 75),
-                6
-        );
+//        SimpleMarkerSymbol defaultSymbol = new SimpleMarkerSymbol(
+//                SimpleMarkerSymbol.Style.CIRCLE,
+//                Color.rgb(75, 175, 75),
+//                6
+//        );
 
         for (Map.Entry<String, Color> entry : pinColours.getPinColours().entrySet()) {
             String fruit = entry.getKey();
