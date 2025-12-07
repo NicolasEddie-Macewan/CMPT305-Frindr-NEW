@@ -24,6 +24,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.mapping.GeoElement;
+import com.esri.arcgisruntime.mapping.Layer;
+import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult;
+import com.esri.arcgisruntime.mapping.view.MapView;
+
+import javafx.application.Platform;
+import javafx.geometry.Point2D;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.MouseButton;
+
+import java.util.Map;
+
 public class MainController {
 
     private final AnchorPane rootPane;
@@ -488,5 +502,75 @@ public class MainController {
             index++;
         }
         return -1;
+    }
+
+    // Enables clickable tree pins that show a popup with info from the CSV
+    public void enableTreePopups(MapView mapView) {
+        mapView.setOnMouseClicked(event -> {
+            // Only responds to left-clicks
+            if (event.getButton() != MouseButton.PRIMARY || !event.isStillSincePress()) {
+                return;
+            }
+
+            // Used only if there is no active layer
+            if (map == null || map.getOperationalLayers().isEmpty()) {
+                return;
+            }
+
+            // Uses the currently displaywd layer at index 0
+            Layer activeLayer = map.getOperationalLayers().get(0);
+
+            Point2D screenPoint = new Point2D(event.getX(), event.getY());
+
+            ListenableFuture<IdentifyLayerResult> future =
+                    mapView.identifyLayerAsync(activeLayer, screenPoint, 10, false, 1);
+
+            future.addDoneListener(() -> {
+                try {
+                    IdentifyLayerResult result = future.get();
+                    if (result == null || result.getElements().isEmpty()) {
+                        return; // clicked on empty map
+                    }
+                    GeoElement geoElement = result.getElements().get(0);
+                    if (!(geoElement instanceof Feature)) {
+                        return;
+                    }
+                    Feature feature = (Feature) geoElement;
+                    Map<String, Object> attrs = feature.getAttributes();
+
+                    // These names match FeatureLayerHandler.generateFields()
+                    String speciesBotanical = String.valueOf(
+                            attrs.getOrDefault("speciesBotanical", "Unknown")
+                    );
+                    String speciesCommon = String.valueOf(
+                            attrs.getOrDefault("speciesCommon", "Unknown")
+                    );
+                    String fruit = String.valueOf(
+                            attrs.getOrDefault("fruit", "Unknown")
+                    );
+                    String datePlanted = String.valueOf(
+                            attrs.getOrDefault("datePlanted", "Unknown")
+                    );
+
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Tree Information");
+                        alert.setHeaderText(
+                                speciesCommon.equals("Unknown") ? "Tree information" : speciesCommon
+                        );
+                        alert.setContentText(
+                                "Species (botanical): " + speciesBotanical + "\n" +
+                                        "Species (common): " + speciesCommon + "\n" +
+                                        "Fruit: " + fruit + "\n" +
+                                        "Date planted: " + datePlanted
+                        );
+                        alert.show();
+                    });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
     }
 }
