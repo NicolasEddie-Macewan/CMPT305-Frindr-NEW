@@ -143,18 +143,8 @@ public class Complete_tree {
 
     public Complete_tree getFruitListStream(List<String> fruitType){
         return fruitFilter(fruitType,t->t.getAboutTree().getFruitType());
-//        return new Complete_tree(trees.stream()
-//                .filter(t->fruitType.contains(t.getAboutTree().getFruitType()))
-//                .collect(Collectors.toList()));
     }
 
-    public Complete_tree getSpeciesCommonStream(List<String> commonType){
-        return fruitFilter(commonType,t->t.getAboutTree().getSpeciesCommon());
-//        return new Complete_tree(trees.stream()
-//                .filter(t->commonType.contains(t.getAboutTree().getSpeciesCommon()))
-//                .collect(Collectors.toList())
-//        );
-    }
     //=================================================================
     //=================================================================
     public Complete_tree dateFilter(Date date,mode key) {
@@ -201,13 +191,6 @@ public class Complete_tree {
     //=================================================================
     //=================================================================
     private location parseLocation(String uInput){
-        /* if(assessments ==null) {
-            try {
-                assessments = new propertyAssessments("Property_Assessment_Data_2025.csv");
-            } catch (IOException e) {
-                System.out.println(e.getMessage() + "does not exist");
-            }
-        } */
         uInput = uInput.toUpperCase();
         String[] userInputs = uInput.split(",");
         if (userInputs.length != 2){throw new IllegalArgumentException("Format:House Number,Street Name");}

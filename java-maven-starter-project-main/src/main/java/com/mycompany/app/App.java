@@ -17,19 +17,15 @@
 package com.mycompany.app;
 
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
-import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.layers.Layer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.BasemapStyle;
 import com.esri.arcgisruntime.mapping.Viewpoint;
-import com.esri.arcgisruntime.mapping.view.Callout;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -79,26 +75,7 @@ public class App extends Application {
         Viewpoint edmontonViewpoint = new Viewpoint(53.5461, -113.4938, 400000);
         mapView.setViewpoint(edmontonViewpoint);
 
-        mapView.setOnMouseClicked(mouseEvent -> {
-            Callout callout = mapView.getCallout();
-            if(mouseEvent.getButton() == MouseButton.PRIMARY) {
-                Layer layer = map.getOperationalLayers().getFirst();
-                if (layer != null){
-                    javafx.geometry.Point2D screenPoint = new javafx.geometry.Point2D(mouseEvent.getX(), mouseEvent.getY());
-                    Point mapPoint = mapView.screenToLocation(screenPoint);
 
-                    callout.setDetail("\n"+mapPoint);// feature layer information goes here once oyu figure out how to get it
-                    callout.setTitle("Clicked Location");
-
-                    callout.showCalloutAt(mapPoint);
-                }
-            }
-            else{
-                try {
-                    callout.dismiss();
-                }catch (Exception ignored){}
-            }
-        });
         // ------------------------------------------------------------------
         // UI OVERLAY WITH TOP-RIGHT BUTTONS
         // ------------------------------------------------------------------
