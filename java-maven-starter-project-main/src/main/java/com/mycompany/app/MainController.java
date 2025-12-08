@@ -612,7 +612,6 @@ public class MainController {
                     }
 
                     if (clickedFeature == null) {
-                        System.out.println("No feature under click.");
                         return;
                     }
 
