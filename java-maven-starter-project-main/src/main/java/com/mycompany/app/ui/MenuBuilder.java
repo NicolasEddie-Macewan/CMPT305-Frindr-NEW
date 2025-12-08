@@ -99,15 +99,15 @@ public class MenuBuilder {
         return comboBox;
     }
 
-    public HBox comparisonFilters(){
+    public VBox comparisonFilters(){
         ToggleGroup group = new ToggleGroup();
-        RadioButton button1 = new RadioButton("<\t");
+        RadioButton button1 = new RadioButton("less than input date\t");
         button1.setToggleGroup(group);
-        RadioButton button2 = new RadioButton("=\t");
+        RadioButton button2 = new RadioButton("Equals input date\t");
         button2.setToggleGroup(group);
-        RadioButton button3 = new RadioButton(">\t");
+        RadioButton button3 = new RadioButton("Greater than input date\t");
         button3.setToggleGroup(group);
-        return new HBox(button1, button2, button3);
+        return new VBox(button1, button2, button3);
     }
 
 

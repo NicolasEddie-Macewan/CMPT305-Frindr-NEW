@@ -9,18 +9,20 @@ import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.layers.FeatureCollectionLayer;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
-import com.esri.arcgisruntime.symbology.SimpleRenderer;
+import com.esri.arcgisruntime.symbology.UniqueValueRenderer;
 import com.mycompany.app.backend.fruit.AboutTree;
 import com.mycompany.app.backend.fruit.CityLocation;
 import com.mycompany.app.backend.fruit.Complete_tree;
 import com.mycompany.app.backend.fruit.Tree;
 
+import com.mycompany.app.ui.PinColours;
 import javafx.scene.paint.Color;
 import java.util.*;
 import java.util.List;
 
 public class FeatureLayerHandler {
     FeatureCollectionLayer featureLayer;
+    PinColours pinColours = new PinColours();
 
     public FeatureLayerHandler(Complete_tree data) {
         FeatureCollectionTable table = new FeatureCollectionTable(
@@ -35,13 +37,31 @@ public class FeatureLayerHandler {
             table.addFeatureAsync(feature);
         }
 
-        SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(
-                SimpleMarkerSymbol.Style.CIRCLE,
-                Color.rgb(75, 175, 75),
-                6
-        );
+        UniqueValueRenderer renderer = new UniqueValueRenderer();
+        renderer.getFieldNames().add("fruit");
 
-        SimpleRenderer renderer = new SimpleRenderer(symbol);
+//        SimpleMarkerSymbol defaultSymbol = new SimpleMarkerSymbol(
+//                SimpleMarkerSymbol.Style.CIRCLE,
+//                Color.rgb(75, 175, 75),
+//                6
+//        );
+
+        for (Map.Entry<String, Color> entry : pinColours.getPinColours().entrySet()) {
+            String fruit = entry.getKey();
+            Color color = entry.getValue();
+
+            SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(
+                    SimpleMarkerSymbol.Style.CIRCLE,
+                    color,
+                    6
+            );
+
+            List<Object> values = new ArrayList<>();
+            values.add(fruit);
+            UniqueValueRenderer.UniqueValue uniqueValue = new UniqueValueRenderer.UniqueValue(fruit, fruit, symbol, values);
+            renderer.getUniqueValues().add(uniqueValue);
+        }
+
         table.setRenderer(renderer);
 
         FeatureCollection featureCollection = new FeatureCollection();

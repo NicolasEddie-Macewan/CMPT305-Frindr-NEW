@@ -78,18 +78,6 @@ public class propertyAssessments {
                 .sorted(Comparator.comparing(l -> l.getHouse().getAssessedValue()))
                 .collect(Collectors.toList());
     }
-
-//        if (assessments.size()==1){
-//            return assessments;
-//        }
-//        assessments.sort(new Comparator<propertyAssessment>() {
-//            @Override
-//            public int compare(propertyAssessment o1, propertyAssessment o2) {
-//                return Integer.compare(o1.getHouse().getAssessedValue(), o2.getHouse().getAssessedValue());
-//            }
-//        });
-//        return assessments;
-//    }
     //======================================================================
     //======================================================================
     public int getCount() {
@@ -98,82 +86,6 @@ public class propertyAssessments {
             count++;
         }
         return count;
-    }
-    //======================================================================
-    //======================================================================
-    public int getMean() {
-        long mean = 0;
-        long index= 0;
-        for (propertyAssessment aPa : assessmentsList) {
-            mean += aPa.getHouse().getAssessedValue();
-            index++;
-        }
-        return Math.toIntExact(mean / index);
-    }
-    //======================================================================
-    //======================================================================
-    public int getMax() {
-        int index = getCount();
-        return assessmentsList.get(index-1).getHouse().getAssessedValue();
-    }
-    //======================================================================
-    //======================================================================
-    public int getMin() {
-        return assessmentsList.getFirst().getHouse().getAssessedValue();
-    }
-    //======================================================================
-    //======================================================================
-    public int getRange() {
-        int index = getCount()-1;
-        return assessmentsList.get(index).getHouse().getAssessedValue()-assessmentsList.getFirst().getHouse().getAssessedValue();
-    }
-    //======================================================================
-    //======================================================================
-    public int getMedian() {
-        int index = getCount();
-        int mid = index / 2;
-        if (index % 2 == 0) {
-            return (assessmentsList.get(mid).getHouse().getAssessedValue() + assessmentsList.get(mid - 1).getHouse().getAssessedValue()) / 2;
-        }else{
-            return assessmentsList.get(mid).getHouse().getAssessedValue();
-        }
-
-    }
-    //======================================================================
-    //======================================================================
-    public propertyAssessments checkNeighbourhood(String input){
-        List<propertyAssessment> hoodList = new ArrayList<>();
-        input = input.toUpperCase();
-        for (propertyAssessment aPa : assessmentsList) {
-            if (input.compareTo(aPa.getNeighbourhood().getHood()) == 0) {
-                hoodList.add(aPa);
-            }
-        }
-        if (hoodList.isEmpty()){
-            throw new IllegalArgumentException("No neighbourhood found");
-        }
-        return  new propertyAssessments(hoodList);
-    }
-    //======================================================================
-    //======================================================================
-    public propertyAssessments checkPropClass(String propClass) {
-        ArrayList<propertyAssessment> classList = new ArrayList<>();
-        for  (propertyAssessment aPa : assessmentsList) {
-            int valid =0;
-            for (String classes : aPa.getAssessment().getAssessmentClass()){
-                if (classes.compareTo(propClass) == 0) {
-                    valid = 1;
-                    break;
-                }
-            }
-            if (valid ==1){
-                classList.add(aPa);
-            }
-        }
-        if (classList.isEmpty()) {
-            throw new IllegalArgumentException("Property Class "+propClass+" Doesn't Exist"); }
-
-        return new propertyAssessments(classList);
     }
     //======================================================================
     //======================================================================
@@ -212,6 +124,8 @@ public class propertyAssessments {
         }
         return Streets;
     }
+    //======================================================================
+    //======================================================================
     public propertyAssessments checkStreet(String street) {
         List<propertyAssessment> streetList = new ArrayList<>();
         for (propertyAssessment aPa : assessmentsList) {
@@ -229,7 +143,8 @@ public class propertyAssessments {
                 .filter(p->p.getHouse().getStreetName().equals(street))
                 .collect(Collectors.toList()));
     }
-
+    //======================================================================
+    //======================================================================
     public List<String> getStreetNamesStream(String hood){
         return assessmentsList.stream()
                 .filter(p->p.getNeighbourhood().getHood().equals(hood))
@@ -238,6 +153,8 @@ public class propertyAssessments {
                 .distinct()
                 .collect(Collectors.toList());
     }
+    //======================================================================
+    //======================================================================
     public List<String> getStreetNamesStreamNoFilter(){
         return assessmentsList.stream()
                 .map(propertyAssessment -> propertyAssessment.getHouse().getStreetName())
@@ -258,13 +175,16 @@ public class propertyAssessments {
         if(houseList.isEmpty()){throw new IllegalArgumentException("HouseNumber "+houseNum+" Doesn't Exist");}
         return houseList;
     }
+    //======================================================================
+    //======================================================================
     public location findHouseNumber(String houseNum) {
         return assessmentsList.stream()
                 .filter(p->p.getHouse().getHouseNum().equals(houseNum))
                 .map(propertyAssessment::getLocation)
                 .findFirst().orElse(null);
     }
-
+    //======================================================================
+    //======================================================================
     public List<String> getNeighbourhoodNames() {
         return assessmentsList.stream()
                 .map(p -> p.getNeighbourhood().getHood())
@@ -272,7 +192,8 @@ public class propertyAssessments {
                 .filter(n -> !n.isEmpty())
                 .toList();
     }
-
+    //======================================================================
+    //======================================================================
     public List<String> getHouseNumbersStreet(String street){
         return assessmentsList.stream()
                 .filter(p->p.getHouse().getStreetName().equals(street))
