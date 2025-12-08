@@ -38,7 +38,6 @@ public class App extends Application {
     private MapView mapView;
 
     public static void main(String[] args) {
-
         Application.launch(args);
     }
 

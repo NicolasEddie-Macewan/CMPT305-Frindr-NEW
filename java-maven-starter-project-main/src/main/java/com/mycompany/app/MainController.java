@@ -71,7 +71,7 @@ public class MainController {
         neighbourhoodSearch.setId("neighbourhoodSearch");
 
         Text dateFilterText = new Text();
-        dateFilterText.setText("Date Filter");
+        dateFilterText.setText("Planted Date Filter");
         dateFilterText.setId("dateFilterText");
 
         TextField dateInput = new TextField();
