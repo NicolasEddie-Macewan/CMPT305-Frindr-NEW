@@ -260,7 +260,6 @@ public class MainController {
             alert.setHeaderText(e.getMessage());
             alert.showAndWait();
         }
-    System.out.println(filteredTrees.getCount());
         applyFilters();
     }
 
@@ -527,7 +526,7 @@ public class MainController {
 
         try{
             if(!date.getText().isEmpty()){
-                System.out.println(checkBox(datebox));
+
                 switch(checkBox(datebox))
                 {
                     case -1:break;
@@ -544,12 +543,10 @@ public class MainController {
             alert.setContentText("Use Date format YYYY-MM-DD instead of " +  date.getText());
             alert.showAndWait();
         }
-        System.out.println("fruits count: " + filteredTrees.getCount());
 
         filteredFeatureLayerHandler = new FeatureLayerHandler(filteredTrees);
         map.getOperationalLayers().set(0, filteredFeatureLayerHandler.getFeatureLayer());
     }
-
 
     private List<String> getCheckBoxes(VBox menu) {
         ObservableList<Node> children = menu.getChildren();
