@@ -111,6 +111,9 @@ public class App extends Application {
         // Hook the overlay and button bar to MainController
         MainController controller = new MainController(uiOverlay, topButtonBar, map);
 
+        // added new
+        controller.enableTreePopups(mapView);
+
         // Wire button actions
         filtersButton.setOnAction(e -> controller.showFiltersMenu());
         settingsButton.setOnAction(e -> controller.showSettingsMenu());

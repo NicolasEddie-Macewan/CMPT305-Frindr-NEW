@@ -28,6 +28,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.mapping.GeoElement;
+import com.esri.arcgisruntime.layers.Layer;
+import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult;
+import com.esri.arcgisruntime.mapping.view.MapView;
+
+import javafx.application.Platform;
+import javafx.geometry.Point2D;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.MouseButton;
+
+import java.util.Map;
+
 public class MainController {
 
     private final AnchorPane rootPane;
@@ -571,5 +586,83 @@ public class MainController {
             index++;
         }
         return -1;
+    }
+
+    public void enableTreePopups(MapView mapView) {
+        // simple click handler for the whole map view
+        mapView.setOnMouseClicked(event -> {
+            // only react to a simple left-click (no drag)
+            if (!event.isStillSincePress() || event.getButton() != MouseButton.PRIMARY) {
+                return;
+            }
+
+            Point2D screenPoint = new Point2D(event.getX(), event.getY());
+
+            // small tolerance in screen pixels
+            int tolerance = 10;
+            boolean returnPopupsOnly = false;
+
+            // identify across ALL layers so it works with FeatureCollectionLayer
+            ListenableFuture<java.util.List<IdentifyLayerResult>> identifyFuture =
+                    mapView.identifyLayersAsync(screenPoint, tolerance, returnPopupsOnly);
+
+            identifyFuture.addDoneListener(() -> {
+                try {
+                    java.util.List<IdentifyLayerResult> results = identifyFuture.get();
+
+                    // find the first Feature anywhere in the identify results (handles sublayers)
+                    Feature clickedFeature = null;
+                    for (IdentifyLayerResult result : results) {
+                        clickedFeature = findFirstFeature(result);
+                        if (clickedFeature != null) break;
+                    }
+
+                    if (clickedFeature == null) {
+                        System.out.println("No feature under click.");
+                        return;
+                    }
+
+                    // read attributes that we put in FeatureLayerHandler
+                    java.util.Map<String, Object> attrs = clickedFeature.getAttributes();
+                    String botanical = String.valueOf(attrs.getOrDefault("speciesBotanical", "Unknown"));
+                    String common = String.valueOf(attrs.getOrDefault("speciesCommon", "Unknown"));
+                    String fruit = String.valueOf(attrs.getOrDefault("fruit", "Unknown"));
+                    String planted = String.valueOf(attrs.getOrDefault("datePlanted", "Unknown"));
+
+                    String message =
+                            "Species (botanical): " + botanical + "\n" +
+                                    "Species (common): " + common + "\n" +
+                                    "Fruit: " + fruit + "\n" +
+                                    "Date planted: " + planted;
+
+                    // show JavaFX alert on the UI thread
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Tree Information");
+                        alert.setHeaderText(null);
+                        alert.setContentText(message);
+                        alert.showAndWait();
+                    });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+    }
+
+    private Feature findFirstFeature(IdentifyLayerResult result) {
+        // direct elements
+        for (GeoElement element : result.getElements()) {
+            if (element instanceof Feature) {
+                return (Feature) element;
+            }
+        }
+        // search sublayers
+        for (IdentifyLayerResult sub : result.getSublayerResults()) {
+            Feature f = findFirstFeature(sub);
+            if (f != null) return f;
+        }
+        return null;
     }
 }
