@@ -40,13 +40,7 @@ public class MenuBuilder {
         return fruitFilters;
     }
 
-
-    //public ComboBox<String> createNeighbourhoodSearch(Complete_tree data) {
     public ComboBox<String> createNeighbourhoodSearch(List<String> dataset) {
-
-        //List<String> neighbourhoodList = data.getAllNeighbourhoodNames();
-        //ObservableList<String> neighbourhoods = javafx.collections.FXCollections.observableArrayList(neighbourhoodList);
-
         ObservableList<String> neighbourhoods = javafx.collections.FXCollections.observableArrayList(dataset);
         FilteredList<String> filteredNeighbourhoods = new FilteredList<>(neighbourhoods, p -> true);
 

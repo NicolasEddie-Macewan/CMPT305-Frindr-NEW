@@ -1,4 +1,39 @@
-# java-maven-starter-project
+# Frindr
+
+## Instructions to Run the App
+
+1. Open the Maven sidebar
+2. Under `Plugins` -> `dependency`, double-click the `dependency:unpack`
+3. Under `Lifecycle`, double-click `compile`
+4. Under `Plugins` -> `exec`, double-click `exec:java`
+
+## Instructions to Use the App
+
+Once the app has loaded, you can make use of the menus on the top left. There is a legend to explain the colors of the
+pins. The `Filters` menu allows you to filter by fruit, by neighbourhood, or with `Likely bears fruit`, which removes
+plants which are less than 5 years old. The `Location` menu allows you to enter an address or a point location, and set
+a radius. The map then displays only pins which are within the radius of the entered location. This location menu
+includes a `Help` button which opens a popup window explaining how to use that menu.
+
+## Known Issues
+
+The app's launch is unfortunately quite slow. As such, please wait 30-40 seconds after launch to allow the pins to
+be loaded in. This is the only issue we have been able to find, but there may be other bugs we missed.
+
+## Code Integrity Statement
+
+We certify that this project is entirely our own work, except for the following sections:
+
+The starting point for this project was taken from the following GitHub repository: https://github.com/Esri/java-maven-starter-project.
+We have left the original README.md file from that project below.
+
+showMenu() and hideActiveMenu() in MainController.java were made with the help of generative AI - in particular,
+AI was used to add animations which improved the look of these menus.
+
+The createNeighbourhoodSearch() method in MenuBuilder.java was adapted from code in the citySelector code in the
+JavaFX demos. Thank you for that helpful code!
+
+## java-maven-starter-project
 
 Here is a starter project for the ArcGIS Maps SDK for Java with Maven.
 
