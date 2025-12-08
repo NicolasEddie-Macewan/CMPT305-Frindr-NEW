@@ -48,7 +48,9 @@ public class MainController {
     private final Complete_tree trees = new Complete_tree();
     private Complete_tree filteredTrees = trees;
     private boolean locationApplied = false ;
-    private boolean filtersApplied = false;
+    private boolean filtersApplied = false ;
+    private boolean streetloaded = false;
+    private boolean numbersloaded = false;
     private boolean propLoaded = false;
     private ArcGISMap map;
     private final FeatureLayerHandler featureLayerHandler = new FeatureLayerHandler(trees);
@@ -188,17 +190,16 @@ public class MainController {
     private void loadStreets(String value) {
         if (value==null || value.isEmpty()) {return;}
         settingsMenu.getChildren().removeLast();
-
-        ComboBox<String> test = (ComboBox<String>) settingsMenu.lookup("#streeNames");
-        if(!(test ==null)){settingsMenu.getChildren().removeLast();}
+        if (numbersloaded){settingsMenu.getChildren().removeLast();streetloaded =false; settingsMenu.getChildren().removeLast();numbersloaded=false;}
+        else if(streetloaded){settingsMenu.getChildren().removeLast();streetloaded =false;}
         ComboBox<String> streetNames = menuBuilder.createNeighbourhoodSearch(trees.getAssessments().getStreetNamesStream(value));
         streetNames.setPromptText("Street Name");
         streetNames.onActionProperty().set(e -> {loadOther(streetNames.getValue());});
         streetNames.setId("streetNames");
         streetNames.setVisible(true);
-
         settingsMenu.getChildren().add(streetNames);
         settingsMenu.getChildren().add(menuButtons());
+        streetloaded =  true;
     }
 
     private void loadOther(String value) {
@@ -214,6 +215,7 @@ public class MainController {
 
         settingsMenu.getChildren().add(other);
         settingsMenu.getChildren().add(menuButtons());
+        numbersloaded =  true;
     }
 
     private void clearLocation() {
@@ -235,18 +237,14 @@ public class MainController {
     }
 
     private void applyLocation(){
-        if (!filtersApplied){
-            filteredTrees = trees;
-        }
+
+        filteredTrees = trees;
 
         TextField LL = (TextField) settingsMenu.lookup("#LLInput");
         TextField Radius =  (TextField) settingsMenu.lookup("#RadiusInput");
 
         ComboBox<String> houseNumber = (ComboBox<String>) settingsMenu.lookup("#other");
         ComboBox<String> street = (ComboBox<String>) settingsMenu.lookup("#streetNames");
-
-
-
 
         try {
             if (!LL.getText().isEmpty() && !Radius.getText().isEmpty()) {
@@ -268,6 +266,7 @@ public class MainController {
             alert.setTitle("Error in applying Filters");
             alert.setHeaderText(e.getMessage());
             alert.showAndWait();
+            return;
         }
         applyFilters();
     }
@@ -278,6 +277,7 @@ public class MainController {
         alert.setHeaderText("Location Filter Help");
         alert.setContentText("This feature allows you to set a specified location, either polar coordinates or address, and search for all the trees in a input radius");
         alert.showAndWait();
+
     }
 
     public void showFiltersMenu() {
